@@ -25,38 +25,90 @@ function createBoard() {
 }
 createBoard();
 
+const resetButton = document.querySelector("#resetButton");
+resetButton.addEventListener("click", resetGame);
+
+
+function resetGame() {
+  //Noņem visus esošos spēles elementus.
+  while (gameBoard.firstChild) {
+    gameBoard.firstChild.remove();
+  }
+
+  //Notīra spēles stāvokli
+  startCells.forEach((cell, index) => {
+    startCells[index] = "";
+  });
+
+  //Reset uz sākumu
+  go = getRandomPlayer();
+  infoDisplay.textContent = go === "aplis" ? "Aplis iet pirmais." : "Krusts iet pirmais.";
+
+  //Notīra spēles rezultātu
+  infoDisplay.classList.remove("Aplis", "Krusts", "tie");
+
+  //Izveido jaunu spēli
+  createBoard();
+}
+
+
 function addGo(e) {
-    const goDisplay = document.createElement("div");
-    goDisplay.classList.add(go);
-    e.target.append(goDisplay);
-    go = go === "aplis" ? "krusts" : "aplis";
-    infoDisplay.textContent = "Tagad " + go + " ies.";
-    infoDisplay.classList.add('glowing-text'); //mirdzošs teksta klase
-    e.target.removeEventListener("click", addGo);
-    checkScore();
-  
-    if (go === "krusts" && !infoDisplay.classList.contains("Krusts")) {
-      //Datora kārta
-      const emptySquares = Array.from(document.querySelectorAll(".square"))
-        .filter((square) => !square.firstChild);
-  
-      if (emptySquares.length > 0) {
-        //Aizkavē 1 sekundi
-        setTimeout(() => {
-          const randomIndex = Math.floor(Math.random() * emptySquares.length);
-          const randomSquare = emptySquares[randomIndex];
-          const computerGoDisplay = document.createElement("div");
-          computerGoDisplay.classList.add("krusts");
-          randomSquare.append(computerGoDisplay);
-          randomSquare.removeEventListener("click", addGo);
-          go = "aplis";
-          infoDisplay.textContent = "Tagad " + go + " ies.";
-          checkScore();
-        }, 1000);
-      }
+  const goDisplay = document.createElement("div");
+  goDisplay.classList.add(go);
+  e.target.append(goDisplay);
+  go = go === "aplis" ? "krusts" : "aplis";
+  infoDisplay.textContent = "Tagad " + go + " ies.";
+  infoDisplay.classList.add("glowing-text"); //mirdzošs teksta klase
+  e.target.removeEventListener("click", addGo);
+  checkScore();
+
+  if (go === "aplis" && !isGameOver()) { //dators iet ar apli.
+    // Datora kārta
+    const emptySquares = Array.from(document.querySelectorAll(".square")).filter(
+      (square) => !square.firstChild
+    );
+
+    if (emptySquares.length > 0) {
+      // Aizkavē 1 sekundi
+      setTimeout(() => {
+        const randomIndex = Math.floor(Math.random() * emptySquares.length);
+        const randomSquare = emptySquares[randomIndex];
+        const computerGoDisplay = document.createElement("div");
+        computerGoDisplay.classList.add(go);
+        randomSquare.append(computerGoDisplay);
+        randomSquare.removeEventListener("click", addGo);
+        go = "krusts"; //spēlētājs iet ar krustu.
+        infoDisplay.textContent = "Tagad " + go + " ies.";
+        checkScore();
+      }, 1000);
     }
   }
-  
+  if (go === "krusts" && !isGameOver()) { //dators iet ar krustu.
+    // Datora kārta
+    const emptySquares = Array.from(document.querySelectorAll(".square")).filter(
+      (square) => !square.firstChild
+    );
+
+    if (emptySquares.length > 0) {
+      // Aizkavē 1 sekundi
+      setTimeout(() => {
+        const randomIndex = Math.floor(Math.random() * emptySquares.length);
+        const randomSquare = emptySquares[randomIndex];
+        const computerGoDisplay = document.createElement("div");
+        computerGoDisplay.classList.add(go);
+        randomSquare.append(computerGoDisplay);
+        randomSquare.removeEventListener("click", addGo);
+        go = "aplis"; //spēlētājs iet ar apli.
+        infoDisplay.textContent = "Tagad " + go + " ies.";
+        checkScore();
+      }, 1000);
+    }
+  }
+}
+
+function isGameOver() {
+  return infoDisplay.classList.contains("Aplis") || infoDisplay.classList.contains("Krusts");
+}
 
 function checkScore() {
   const allSquares = document.querySelectorAll(".square");
@@ -97,7 +149,7 @@ function checkScore() {
     }
   });
 
-  // Pārbauda, vai board ir pilns
+  // Pārbauda, vai board ir pilns.
   for (let i = 0; i < allSquares.length; i++) {
     if (!allSquares[i].firstChild) {
       isBoardFull = false;
@@ -105,12 +157,14 @@ function checkScore() {
     }
   }
 
-  // Ja board ir pilns un nav uzvarētāja, tas ir neizšķirts
+  // Ja board ir pilns un nav uzvarētāju, tad ir neizšķirts.
   if (isBoardFull) {
     infoDisplay.textContent = "Neizšķirts!";
     infoDisplay.classList.add("tie");
     allSquares.forEach((square) => square.replaceWith(square.cloneNode(true)));
   }
 }
+
+
 
 
