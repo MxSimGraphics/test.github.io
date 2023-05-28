@@ -124,32 +124,41 @@ function checkScore() {
   ];
 
   let isBoardFull = true;
+  let winner = null;
 
-  winningCombos.forEach((array) => {
-    const circleWins = array.every((cell) =>
-      allSquares[cell].firstChild?.classList.contains("aplis")
-    );
+  winningCombos.forEach((combo) => {
+    const [a, b, c] = combo;
 
-    if (circleWins) {
-      infoDisplay.textContent = "Aplis uzvar!";
-      infoDisplay.classList.add("Aplis");
-      allSquares.forEach((square) => square.replaceWith(square.cloneNode(true)));
-      return;
-    }
-
-    const crossWins = array.every((cell) =>
-      allSquares[cell].firstChild?.classList.contains("krusts")
-    );
-
-    if (crossWins) {
-      infoDisplay.textContent = "Krusts uzvar!";
-      infoDisplay.classList.add("Krusts");
-      allSquares.forEach((square) => square.replaceWith(square.cloneNode(true)));
-      return;
+    if (
+      allSquares[a].firstChild &&
+      allSquares[a].firstChild.classList.contains("aplis") &&
+      allSquares[b].firstChild &&
+      allSquares[b].firstChild.classList.contains("aplis") &&
+      allSquares[c].firstChild &&
+      allSquares[c].firstChild.classList.contains("aplis")
+    ) {
+      winner = "aplis";
+    } else if (
+      allSquares[a].firstChild &&
+      allSquares[a].firstChild.classList.contains("krusts") &&
+      allSquares[b].firstChild &&
+      allSquares[b].firstChild.classList.contains("krusts") &&
+      allSquares[c].firstChild &&
+      allSquares[c].firstChild.classList.contains("krusts")
+    ) {
+      winner = "krusts";
     }
   });
 
-  // Pārbauda, vai board ir pilns.
+  //Pārbauda, vai ir uzvarētājs.
+  if (winner) {
+    infoDisplay.textContent = `${winner} uzvar!`;
+    infoDisplay.classList.add(winner === "aplis" ? "Aplis" : "Krusts");
+    allSquares.forEach((square) => square.removeEventListener("click", addGo));
+    return;
+  }
+
+  //Pārbauda, vai board ir pilns.
   for (let i = 0; i < allSquares.length; i++) {
     if (!allSquares[i].firstChild) {
       isBoardFull = false;
@@ -157,13 +166,17 @@ function checkScore() {
     }
   }
 
-  // Ja board ir pilns un nav uzvarētāju, tad ir neizšķirts.
+  //Ja board ir pilns un nav uzvarētāju, tas ir neizšķirts.
   if (isBoardFull) {
     infoDisplay.textContent = "Neizšķirts!";
     infoDisplay.classList.add("tie");
-    allSquares.forEach((square) => square.replaceWith(square.cloneNode(true)));
+    allSquares.forEach((square) => square.removeEventListener("click", addGo));
   }
 }
+
+
+
+
 
 
 
